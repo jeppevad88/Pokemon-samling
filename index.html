@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#18234b">
+  <title>PokéSamling | Min Pokémon-samling</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="#"><span class="pokeball">●</span><span>Poké<span>Samling</span></span></a>
+      <nav><a href="#samling">Min samling</a><a href="#saadan">Sådan virker det</a></nav>
+      <button id="authButton" class="button button-outline">Log ind</button>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">DIT PERSONLIGE KORTALBUM</p>
+          <h1>Din samling.<br><span>Dit Poké-eventyr.</span></h1>
+          <p class="hero-text">Saml dine kort ét sted, hold styr på dine favoritter, og følg samlingens samlede værdi.</p>
+          <a class="button button-yellow" href="#samling">Se min samling <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <div class="star star-one">✦</div><div class="star star-two">✦</div>
+          <div class="hero-ball"><div class="ball-top"></div><div class="ball-line"></div><div class="ball-center"></div></div>
+          <div class="floating-card card-back"><span>POKÉMON</span><div class="card-swirl">✦</div></div>
+          <div class="floating-card card-front"><span class="mini-label">YOUR COLLECTION</span><div class="fake-creature">⚡</div><span class="mini-name">Your next favourite</span></div>
+        </div>
+      </section>
+
+      <section class="stats" aria-label="Samlingens overblik">
+        <article class="stat-card"><span class="stat-icon">▣</span><span class="stat-label">KORT I SAMLINGEN</span><strong id="cardCount">0</strong></article>
+        <article class="stat-card value-stat"><span class="stat-icon">◆</span><span class="stat-label">SAMLET VÆRDI</span><strong id="totalValue">0,00 kr.</strong><small id="valueNote">Priser er endnu ikke synkroniseret</small></article>
+        <article class="stat-card"><span class="stat-icon">↻</span><span class="stat-label">SENESTE PRISOPDATERING</span><strong class="stat-date" id="lastUpdated">—</strong><small>Opdateres, når en priskilde er tilsluttet</small></article>
+      </section>
+
+      <section class="collection-section" id="samling">
+        <div class="section-heading">
+          <div><p class="eyebrow">KORTALBUM</p><h2>Min samling</h2><p class="muted">Alle dine kort samlet på ét sted.</p></div>
+          <button id="addButton" class="button button-red"><span>＋</span> Tilføj kort til samlingen</button>
+        </div>
+        <div class="toolbar">
+          <label class="search-box"><span>⌕</span><input id="searchInput" type="search" placeholder="Søg efter kortnavn, sæt eller kortnummer…"></label>
+          <select id="sortSelect" aria-label="Sortér kort"><option value="newest">Senest tilføjet</option><option value="value-desc">Højeste værdi</option><option value="value-asc">Laveste værdi</option><option value="name">Navn A–Å</option></select>
+        </div>
+        <div id="statusMessage" class="status-message">Tilslut Supabase for at gemme din samling på tværs af enheder.</div>
+        <div id="collectionGrid" class="collection-grid"></div>
+        <div id="emptyState" class="empty-state">
+          <div class="empty-orb">＋</div><h3>Dit album venter på det første kort</h3><p>Tilføj et billede eller skriv navnet på et Pokémon-kort for at komme i gang.</p>
+          <button class="button button-red" id="emptyAddButton">Tilføj dit første kort</button>
+        </div>
+      </section>
+
+      <section class="how-section" id="saadan">
+        <p class="eyebrow">NEMT AT HOLDE STYR PÅ</p><h2>Fra kort til samling</h2>
+        <div class="how-grid">
+          <article><span>01</span><h3>Tilføj kortet</h3><p>Upload et billede af forsiden eller indtast kortets navn og nummer.</p></article>
+          <article><span>02</span><h3>Bekræft udgaven</h3><p>Tjek sæt, kortnummer, sprog og variant, så prisgrundlaget passer til dit kort.</p></article>
+          <article><span>03</span><h3>Følg værdien</h3><p>Se den enkelte kortværdi og summen for hele samlingen, når priserne er tilgængelige.</p></article>
+        </div>
+      </section>
+    </main>
+    <footer><a class="brand footer-brand" href="#"><span class="pokeball">●</span><span>Poké<span>Samling</span></span></a><p>Et personligt album til din Pokémon-samling.</p><small>Fanprojekt. Pokémon og tilhørende navne tilhører deres respektive ejere.</small></footer>
+  </div>
+
+  <dialog id="cardDialog" class="modal">
+    <form id="cardForm" class="modal-content">
+      <button type="button" class="modal-close" id="closeDialog" aria-label="Luk">×</button>
+      <p class="eyebrow">UDVID DIT ALBUM</p><h2>Tilføj kort til samlingen</h2>
+      <p class="muted">Upload et billede eller indtast oplysningerne. Tjek altid, at den fundne udgave matcher dit kort.</p>
+      <label class="upload-zone" for="cardImage"><span class="upload-symbol">↑</span><strong>Vælg billede af kortet</strong><small>JPG, PNG eller WEBP · maks. 8 MB</small><input type="file" id="cardImage" accept="image/*"></label>
+      <div id="imagePreviewWrap" class="image-preview-wrap" hidden><img id="imagePreview" alt="Forhåndsvisning af kort"><button type="button" id="removeImage" class="text-button">Fjern billede</button></div>
+      <div class="form-grid">
+        <label>Kortnavn *<input id="cardName" required placeholder="Fx Galarian Meowth"></label>
+        <label>Kortnummer<input id="cardNumber" placeholder="Fx 141/128"></label>
+        <label>Sæt<input id="cardSet" placeholder="Fx 30th Celebration"></label>
+        <label>Sprog<select id="cardLanguage"><option value="English">Engelsk</option><option value="Danish">Dansk</option><option value="Japanese">Japansk</option><option value="Other">Andet</option></select></label>
+        <label>Pris i EUR (valgfri)<input id="cardPrice" type="number" min="0" step="0.01" placeholder="Tilføj manuelt indtil prisfeed er klar"></label>
+        <label>Kortets stand<select id="cardCondition"><option>Near Mint</option><option>Excellent</option><option>Good</option><option>Played</option><option>Poor</option><option>Ukendt</option></select></label>
+      </div>
+      <p class="form-note">Automatisk billedgenkendelse og automatisk Cardmarket-pris kræver en tilsluttet identifikations- og prisdatakilde. En indtastet pris markeres som manuel.</p>
+      <div class="modal-actions"><button type="button" class="button button-outline" id="cancelDialog">Annuller</button><button type="submit" class="button button-red" id="saveCardButton">Gem kort</button></div>
+      <p id="formError" class="error-text" role="alert"></p>
+    </form>
+  </dialog>
+
+  <dialog id="authDialog" class="modal">
+    <form id="authForm" class="modal-content">
+      <button type="button" class="modal-close" id="closeAuth" aria-label="Luk">×</button>
+      <p class="eyebrow">DIN PERSONLIGE SAMLING</p><h2 id="authTitle">Log ind</h2>
+      <p class="muted">Opret en konto for at holde din samling privat og tilgængelig på flere enheder.</p>
+      <label>E-mail<input id="authEmail" type="email" required placeholder="dig@eksempel.dk"></label>
+      <label>Adgangskode<input id="authPassword" type="password" minlength="8" required placeholder="Mindst 8 tegn"></label>
+      <button type="submit" class="button button-red block-button" id="authSubmit">Log ind</button>
+      <button type="button" id="toggleAuthMode" class="text-button">Ny her? Opret en konto</button>
+      <p id="authMessage" class="form-note"></p>
+    </form>
+  </dialog>
+  <script src="app.js"></script>
+</body>
+</html>
