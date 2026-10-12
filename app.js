@@ -2,8 +2,8 @@
    Configure SUPABASE_URL and SUPABASE_ANON_KEY below after creating your Supabase project.
    Cardmarket last-sold data is intentionally not fabricated: connect an approved data source
    to a secure backend/Edge Function when access is available. */
-const SUPABASE_URL = "";
-const SUPABASE_ANON_KEY = "";
+const SUPABASE_URL = "https://cnbhybdyftviykzsrkzl.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_hbBIVt0bogajJ3R5B-iLCQ_GyGaQ1X8";
 const hasSupabaseConfig = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase);
 const db = hasSupabaseConfig ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
